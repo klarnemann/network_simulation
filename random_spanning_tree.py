@@ -2,15 +2,14 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
-def random_spanning_tree(mat, mst=None, num_itrs=100000):
-    '''
-    Generate random spanning trees and find sums of their edges to bootstrap p-value of
+def random_spanning_tree(mat, mst_mat=None, num_itrs=100000):
+    ''' Generate random spanning trees and find sums of their edges to bootstrap p-value of
     the mimimum spanning tree.
 
     INPUT
     mat : ndarray
        adjacency matrix of whole network
-    mst : ndarray
+    mst_mat : ndarray
        adjacency matrix of  mimimum spanning tree
     num_itrs : int
        number of random samples to generate
@@ -35,11 +34,10 @@ def random_spanning_tree(mat, mst=None, num_itrs=100000):
         num_itrs -= 1
     np.array(rst_sums)
     # print p-value (bootstrapped)
-    if mst:
-        mst_sum = np.sum(mat[mst > 0.])
+    if mst_mat:
+        mst_sum = np.sum(mat[mst_mat > 0.])
         print len(rst_sums[rst_sums > mst_sum]) / float(num_itrs)
     return rst_sums
-
 
 def plot_spanning_tree_distribution(mat, rst_sums, mst, bins=25, \
                                         title='Spanning Tree Distribution', ylim=20000):
