@@ -39,22 +39,4 @@ def random_spanning_tree(mat, mst_mat=None, num_itrs=100000):
         print len(rst_sums[rst_sums > mst_sum]) / float(num_itrs)
     return rst_sums
 
-def plot_spanning_tree_distribution(mat, rst_sums, mst, bins=25, \
-                                        title='Spanning Tree Distribution', ylim=20000):
-    '''
-    Plots the distribution of the sums of edges along random spanning trees and as well as 
-    the sum of edges along the minimum spanning tree.
 
-    mat : ndarray
-       adjacency matrix of whole network
-    rst_sums : ndarray
-       array of sums of edges along random spanning trees
-    mst : ndarray
-       adjacency matrix of  mimimum spanning tree
-    '''
-    rst_distr = plt.hist(rst_sums, bins=bins);
-    mst_line = plt.plot([np.sum(mat[mst > 0.]), np.sum(mat[mst > 0.])], [0, ylim], 'r-')
-    plt.title(title, fontsize=28);
-    plt.xlabel('Sum of Edges Along Random Spanning Tree', fontsize=16);
-    plt.legend(handles=[rst_distr, mst_line])
-    plt.show()
