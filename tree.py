@@ -1,26 +1,8 @@
+import utils
 import numpy as np
 import networkx as nx
 from matplotlib import pyplot as plt
 
-
-def add_distance_edge_attr(g):
-    ''' Add a distance attribute to graph edges.
-    Parameters
-    -----------
-    g : weighted undirected networkx graph
-    '''
-    for edge in g.edges(data=True):
-        edge[2]['distance'] = 1.0 - edge[2]['weight']
-
-def format_adjacency_matrix(mat):
-    '''ensure that matrix is symmetric, no self-loops'''
-    # ensure that matrix is symmetric
-    if not np.allclose(mat.T, mat):
-        mat = np.triu(mat)
-        mat = mat + mat.T
-    # remove self-loops
-    np.fill_diagonal(mat, 0.)
-    return mat
 
 def random_spanning_tree(mat, seed=None, mst_mat=None, num_itrs=100000):
     ''' Generate random spanning trees and find sums of their edges to bootstrap p-value of the mimimum spanning tree.
@@ -39,7 +21,7 @@ def random_spanning_tree(mat, seed=None, mst_mat=None, num_itrs=100000):
     rst_sums : ndarray
        array of sums of edges along random spanning trees
     '''
-    mat = format_adjacency_matrix(mat)
+    mat = utils.format_adjacency_matrix(mat)
     # find sums along random spanning trees
     x = range(np.shape(mat)[0])
     rst_sums = []
@@ -75,7 +57,7 @@ def kruskals_minimum_spanning_tree(g):
        minimum spanning tree adjacency matrix
     '''
     if not g.get_edge_data(0,1)['distance']:
-        add_distance_edge_attr(g)
+        utils.add_distance_edge_attr(g)
     mst_g = nx.minimum_spanning_tree(g, weight='distance')
     mst_mat = nx.to_numpy_matrix(mst_g)
     return mst_g, mst_mat
@@ -101,7 +83,7 @@ def prims_minimum_spanning_tree(input_g, seed=None):
     if not seed:
         seed = int(np.random.choice(input_g.nodes(),1))
     if not input_g.get_edge_data(0,1)['distance']:
-        add_distance_edge_attr(input_g)
+        utils.add_distance_edge_attr(input_g)
     g = input_g.copy()
     curr_nodes, curr_edges = [seed], []
     nodes = g.nodes()
