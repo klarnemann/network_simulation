@@ -245,17 +245,23 @@ def tree_degree_divergence(tree):
     degrees = np.array(node_degree(tree).values())
     return np.mean(degrees ** 2) / np.mean(degrees)
     
-def survival_rate(tree1, tree2):
-    '''Returns the fraction of links the trees have in common.
+def survival_rate(trees):
+    '''Returns the fraction of links that two or more trees have in common.
     
     INPUT
     -----
-    tree : networkx graph
+    trees : list of networkx graphs
     '''
-    utils.check_spanning_tree(tree)
-    # check that trees are comparable
-    M = float(len(tree1.edges()))
-    np.testing.assert_equal(len(tree2.nodes()), M+1)
-    np.testing.assert_equal(len(tree2.edges()), M)
-    overlap = set.intersection(set(tree1.edges()), set(tree2.edges()))
+    if len(trees) < 2:
+        raise InputError('Must input array of two or more trees.')
+    M = float(len(trees[0].edges()))
+    for i, tree in enumerate(trees):
+        # check that trees are comparable
+        check_spanning_tree(tree)
+        np.testing.assert_equal(len(tree.nodes()), M+1)
+        np.testing.assert_equal(len(tree.edges()), M)
+        if i == 0:
+            overlap = set(tree.edges())
+        else:
+            overlap = set.intersection(set(tree.edges()), overlap)
     return list(overlap), len(overlap) / M
