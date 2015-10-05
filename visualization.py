@@ -2,6 +2,7 @@ import numpy as np
 import networkx as nx
 from matplotlib import pyplot as plt
 
+import utils
 
 def plot_tree(mst_mat, plot_nodes=None, node_labels=None, **kwargs):
     ''' Draws the tree graph of the  minimum spanning tree.
@@ -12,6 +13,7 @@ def plot_tree(mst_mat, plot_nodes=None, node_labels=None, **kwargs):
     node_labels : dict
        keys = node number; values = node label (e.g. name of brain region)
     '''
+    plt.figure(figsize=(20,12))
     # ensure that matrix is not symmetric
     mst_mat = utils.format_adjacency_matrix(mst_mat, symmetric=False)
     # generate graph
@@ -30,7 +32,8 @@ def plot_tree(mst_mat, plot_nodes=None, node_labels=None, **kwargs):
 
 
 def plot_spanning_tree_distribution(mat, rst_sums, mst, bins=25, \
-                                        title='Spanning Tree Distribution', ylim=20000):
+                                        title='Spanning Tree Distribution', \
+                                        ylim=20000, savef=None):
     '''
     Plots the distribution of the sums of edges along random spanning trees and as well as 
     the sum of edges along the minimum spanning tree.
@@ -42,9 +45,11 @@ def plot_spanning_tree_distribution(mat, rst_sums, mst, bins=25, \
     mst : ndarray
        adjacency matrix of  mimimum spanning tree
     '''
+    plt.figure(figsize=(8,6))
     rst_distr = plt.hist(rst_sums, bins=bins);
     mst_line = plt.plot([np.sum(mat[mst > 0.]), np.sum(mat[mst > 0.])], [0, ylim], 'r-')
     plt.title(title, fontsize=28);
     plt.xlabel('Sum of Edges Along Random Spanning Tree', fontsize=16);
-    plt.legend(handles=[rst_distr, mst_line])
+    if savef:
+        plt.savefig(savef)
     plt.show()

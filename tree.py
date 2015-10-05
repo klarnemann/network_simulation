@@ -3,6 +3,7 @@ import numpy as np
 import networkx as nx
 from matplotlib import pyplot as plt
 
+# Random / Minimum Spanning Tree Functions
 
 def random_spanning_tree(mat, seed=None, mst_mat=None, num_itrs=100000):
     ''' Generate random spanning trees and find sums of their edges to bootstrap p-value of the mimimum spanning tree.
@@ -103,3 +104,167 @@ def prims_minimum_spanning_tree(input_g, seed=None):
     mst_g.add_edges_from(curr_edges)
     return mst_g, curr_nodes
 
+
+# Tree Metrics
+
+def node_degree(tree, norm=False):
+    '''Returns degree centrality of all nodes in tree.
+    
+    INPUT
+    -----
+    tree : networkx graph
+    '''
+    if not nx.is_tree(tree):
+        raise TypeError('Must input a tree.')
+    if norm:
+        M = len(tree.edges())
+        return node_degree(tree) / M
+    else:
+        return nx.degree(tree)
+
+def node_eccentricity(tree, norm=False):
+    '''Returns average shortest path length of all nodes in tree.
+    
+    INPUT
+    -----
+    tree : networkx graph
+    '''
+    if not nx.is_tree(tree):
+        raise TypeError('Must input a tree.')
+    lengths = nx.shortest_path_length(tree)
+    avg_lengths = []
+    for n in tree.nodes():
+        lengths[n].pop(n)
+        avg_lengths.append(np.mean(lengths[n].values()))
+    if norm:
+        M = len(tree.edges())
+        return node_eccentricity(tree) / M
+    else:
+        return dict(zip(range(len(avg_lengths)), avg_lengths)) 
+
+def node_betweenness_centrality(tree):
+    '''Returns betweenness centrality of all nodes in tree.
+    
+    INPUT
+    -----
+    tree : networkx graph
+    '''
+    if not nx.is_tree(tree):
+        raise TypeError('Must input a tree.')
+    return nx.betweenness_centrality(tree)
+
+def tree_max_degree(tree, norm=False):
+    '''Returns maximum degree centrality of tree.
+    
+    INPUT
+    -----
+    tree : networkx graph
+    '''
+    if not nx.is_tree(tree):
+        raise TypeError('Must input a tree.')
+    if norm:
+        M = len(tree.edges())
+        return tree_max_degree(tree) / M
+    else:
+        return max(node_degree(tree).values())
+
+def tree_leaf_number(tree):
+    '''Returns number of leaves of tree.
+    
+    INPUT
+    -----
+    tree : networkx graph
+    '''
+    if not nx.is_tree(tree):
+        raise TypeError('Must input a tree.')
+    degrees = np.array(nx.degree(tree).values())
+    M = len(tree.edges())
+    return len(degrees[degrees == 1]) / M
+
+def tree_diameter(tree):
+    '''Returns largest distance between any two nodes in tree.
+    
+    INPUT
+    -----
+    tree : networkx graph
+    '''
+    if not nx.is_tree(tree):
+        raise TypeError('Must input a tree.')
+    M = len(tree.edges())
+    return max(max(nx.shortest_path_length(tree).values()).values()) / M
+
+def tree_radius(tree, norm=False):
+    '''Returns the value of the node with the smallest average shortest path length.
+    
+    INPUT
+    -----
+    tree : networkx graph
+    '''
+    if not nx.is_tree(tree):
+        raise TypeError('Must input a tree.')
+    if norm:
+        M = len(tree.edges())
+        return tree_radius(tree) / M
+    else:
+        return min(node_eccentricity(tree).values())
+
+def tree_eccentricity_difference(tree, norm=False):
+    '''Returns the difference in values between the nodes with the smallest and 
+    largest average shortest path lengths.
+    
+    INPUT
+    -----
+    tree : networkx graph
+    '''
+    if not nx.is_tree(tree):
+        raise TypeError('Must input a tree.')
+    ecc = node_eccentricity(tree).values()
+    if norm:
+        M = len(tree.edges())
+        return max(ecc / M) - min(ecc / M)
+    else:
+        return max(ecc) - min(ecc)
+
+def tree_heirarchy(tree):
+    '''Returns a metric representing the trade-off between integrating and overload
+    of central nodes of the tree.
+    
+    INPUT
+    -----
+    tree : networkx graph
+    '''
+    if not nx.is_tree(tree):
+        raise TypeError('Must input a tree.')
+    n_leaf = tree_leaf_number(tree)
+    M = len(tree.edges())
+    bc_max = max(node_betweenness_centrality(tree).values())
+    return n_leaf / (2 * M * bc_max)
+
+def tree_degree_divergence(tree):
+    '''Returns kappa, a metric representing the broadness of the degree distribution
+    of the tree.
+    
+    INPUT
+    -----
+    tree : networkx graph
+    '''
+    if not nx.is_tree(tree):
+        raise TypeError('Must input a tree.')
+    degrees = np.array(node_degree(tree).values())
+    return np.mean(degrees ** 2) / np.mean(degrees)
+    
+def survival_rate(tree1, tree2):
+    '''Returns the fraction of links the trees have in common.
+    
+    INPUT
+    -----
+    tree : networkx graph
+    '''
+    if not nx.is_tree(tree1) and nx.is_tree(tree2):
+        raise TypeError('Must input a tree.')
+    # check that trees are comparable
+    M = float(len(tree1.edges()))
+    np.testing.assert_equal(len(tree2.nodes()), M+1)
+    np.testing.assert_equal(len(tree2.edges()), M)
+    overlap = set.intersection(set(tree1.edges()), set(tree2.edges()))
+    return list(overlap), len(overlap) / M
