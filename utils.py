@@ -1,6 +1,23 @@
 import numpy as np
 import networkx as nx
 
+def check_spanning_tree(tree):
+    '''Check that a graph is a spanning tree.
+    Parameters
+    ----------
+    tree : networkx graph
+    '''
+    nodes = np.array(tree.nodes())
+    n_nodes = len(nodes)
+    edges = np.array(tree.edges())
+    n_edges = len(edges)
+    # check number of edges
+    if not n_nodes - 1 == n_edges:
+        raise ValueError('Incorrect number of edes in graph.')
+    # check that graph is a tree
+    if not nx.is_tree(tree):
+        raise TypeError('Must input a tree.')    
+
 def add_distance_edge_attr(g):
     ''' Add a distance attribute to graph edges.
     Parameters

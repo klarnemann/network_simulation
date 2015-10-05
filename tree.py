@@ -61,6 +61,7 @@ def kruskals_minimum_spanning_tree(g):
         utils.add_distance_edge_attr(g)
     mst_g = nx.minimum_spanning_tree(g, weight='distance')
     mst_mat = nx.to_numpy_matrix(mst_g)
+    utils.check_spanning_tree(mst_g)
     return mst_g, mst_mat
 
 def prims_minimum_spanning_tree(input_g, seed=None):
@@ -102,6 +103,7 @@ def prims_minimum_spanning_tree(input_g, seed=None):
         curr_edges.append(curr_edge)
     mst_g = nx.Graph()
     mst_g.add_edges_from(curr_edges)
+    utils.check_spanning_tree(mst_g)
     return mst_g, curr_nodes
 
 
@@ -114,8 +116,7 @@ def node_degree(tree, norm=False):
     -----
     tree : networkx graph
     '''
-    if not nx.is_tree(tree):
-        raise TypeError('Must input a tree.')
+    utils.check_spanning_tree(tree)
     if norm:
         M = len(tree.edges())
         return node_degree(tree) / M
@@ -129,8 +130,7 @@ def node_eccentricity(tree, norm=False):
     -----
     tree : networkx graph
     '''
-    if not nx.is_tree(tree):
-        raise TypeError('Must input a tree.')
+    utils.check_spanning_tree(tree)
     lengths = nx.shortest_path_length(tree)
     avg_lengths = []
     for n in tree.nodes():
@@ -149,8 +149,7 @@ def node_betweenness_centrality(tree):
     -----
     tree : networkx graph
     '''
-    if not nx.is_tree(tree):
-        raise TypeError('Must input a tree.')
+    utils.check_spanning_tree(tree)
     return nx.betweenness_centrality(tree)
 
 def tree_max_degree(tree, norm=False):
@@ -160,8 +159,7 @@ def tree_max_degree(tree, norm=False):
     -----
     tree : networkx graph
     '''
-    if not nx.is_tree(tree):
-        raise TypeError('Must input a tree.')
+    utils.check_spanning_tree(tree)
     if norm:
         M = len(tree.edges())
         return tree_max_degree(tree) / M
@@ -175,8 +173,7 @@ def tree_leaf_number(tree):
     -----
     tree : networkx graph
     '''
-    if not nx.is_tree(tree):
-        raise TypeError('Must input a tree.')
+    utils.check_spanning_tree(tree)
     degrees = np.array(nx.degree(tree).values())
     M = len(tree.edges())
     return len(degrees[degrees == 1]) / M
@@ -188,8 +185,7 @@ def tree_diameter(tree):
     -----
     tree : networkx graph
     '''
-    if not nx.is_tree(tree):
-        raise TypeError('Must input a tree.')
+    utils.check_spanning_tree(tree)
     M = len(tree.edges())
     return max(max(nx.shortest_path_length(tree).values()).values()) / M
 
@@ -200,8 +196,7 @@ def tree_radius(tree, norm=False):
     -----
     tree : networkx graph
     '''
-    if not nx.is_tree(tree):
-        raise TypeError('Must input a tree.')
+    utils.check_spanning_tree(tree)
     if norm:
         M = len(tree.edges())
         return tree_radius(tree) / M
@@ -216,8 +211,7 @@ def tree_eccentricity_difference(tree, norm=False):
     -----
     tree : networkx graph
     '''
-    if not nx.is_tree(tree):
-        raise TypeError('Must input a tree.')
+    utils.check_spanning_tree(tree)
     ecc = node_eccentricity(tree).values()
     if norm:
         M = len(tree.edges())
@@ -233,8 +227,7 @@ def tree_heirarchy(tree):
     -----
     tree : networkx graph
     '''
-    if not nx.is_tree(tree):
-        raise TypeError('Must input a tree.')
+    utils.check_spanning_tree(tree)
     n_leaf = tree_leaf_number(tree)
     M = len(tree.edges())
     bc_max = max(node_betweenness_centrality(tree).values())
@@ -248,8 +241,7 @@ def tree_degree_divergence(tree):
     -----
     tree : networkx graph
     '''
-    if not nx.is_tree(tree):
-        raise TypeError('Must input a tree.')
+    utils.check_spanning_tree(tree)
     degrees = np.array(node_degree(tree).values())
     return np.mean(degrees ** 2) / np.mean(degrees)
     
@@ -260,8 +252,7 @@ def survival_rate(tree1, tree2):
     -----
     tree : networkx graph
     '''
-    if not nx.is_tree(tree1) and nx.is_tree(tree2):
-        raise TypeError('Must input a tree.')
+    utils.check_spanning_tree(tree)
     # check that trees are comparable
     M = float(len(tree1.edges()))
     np.testing.assert_equal(len(tree2.nodes()), M+1)
